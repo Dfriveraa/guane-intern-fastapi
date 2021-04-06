@@ -1,11 +1,16 @@
-name: daniel
-email: daniel@gmail.com
-password_hashed: $2b$12$rFHr69l4zs352FZQDLTJueFRYOSSEEdtdVHdZ9OrfbvYSSk6Yxg9m
+name: firulais
+picture: https://images.dog.ceo/breeds/cattledog-australian/IMG_3056.jpg
+publisher_id: 1
+is_adopted: false
 ---
-name: camilo
-email: camilo@gmail.com
-password_hashed: $2b$12$rFHr69l4zs352FZQDLTJueFRYOSSEEdtdVHdZ9OrfbvYSSk6Yxg9m
+name: milutata
+picture: https://images.dog.ceo/breeds/cattledog-australian/IMG_3056.jpg
+publisher_id: 1
+is_adopted: false
 ---
-name: paola
-email: paola@gmail.com
-password_hashed: $2b$12$rFHr69l4zs352FZQDLTJueFRYOSSEEdtdVHdZ9OrfbvYSSk6Yxg9m
+name: kyrantinia
+picture: https://images.dog.ceo/breeds/cattledog-australian/IMG_3056.jpg
+created_date: 2021-04-05T22:07:41.298970
+publisher_id: 2
+adopter_id: 1
+is_adopted: true

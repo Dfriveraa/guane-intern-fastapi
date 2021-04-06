@@ -27,16 +27,9 @@ TestBase.metadata.reflect(bind=_engine)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=_engine)
 
 
-#
-# def get_settings_override():
-#     return config.Settings(database="rapidog_testing")
-#
-
 @pytest.fixture(scope="function")
 def test_app():
-    # set up
-    # app.dependency_overrides[config.get_settings] = get_settings_override
-    app.dependency_overrides[get_db] = overrid_get_db
+    app.dependency_overrides[get_db] = override_get_db
     with TestClient(app) as test_client:
         yield test_client
 
@@ -49,15 +42,13 @@ def recreateDB():
     for data in yaml.load_all(open('tests/dummy/users.yaml'), Loader=yaml.FullLoader):
         user = User(**data)
         s.add(user)
+    for data in yaml.load_all(open('tests/dummy/dogs.yaml'), Loader=yaml.FullLoader):
+        dog = Dog(**data)
+        s.add(dog)
     s.commit()
 
-    # for data in yaml.load_all(open('tests/dummy/dogs.yaml'), Loader=yaml.FullLoader):
-    #     dog = Dog(**data)
-    #     s.add(dog)
-    #     s.commit()
 
-
-def overrid_get_db():
+def override_get_db():
     db = SessionLocal()
     try:
         yield db
