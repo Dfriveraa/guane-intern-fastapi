@@ -16,6 +16,11 @@ python-multipart = "*"
 install = "*"
 python-jose = {extras = ["cryptography"], version = "*"}
 httpx = "*"
+pytest = "*"
+requests = "*"
+pytest-cov = "*"
+sqlalchemy-utils = "*"
+pyyaml = "*"
 
 [dev-packages]
 

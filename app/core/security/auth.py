@@ -30,7 +30,6 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     try:
         payload = jwt.decode(token, settings.jwt_token)
         email: str = payload.get("email")
-        print(email)
         if email is None:
             raise credentials_exception
     except JWTError:
