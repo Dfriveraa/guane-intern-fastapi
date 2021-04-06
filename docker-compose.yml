@@ -8,24 +8,23 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5434:5432"
-    environment:
+    env_file:
 #      - ./DB/.env
-    - .env
+    - composer.env
     volumes:
       - db_rapidog:/var/lib/postgresql/data
     networks:
       - rapidog
 
-  webbApp:
+  web-app:
     depends_on:
       - rapidog-db
     image: web-app
     build:
       context: .
     command: uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
-    environment:
-      - port_db=5432
-      - host=rapidog-db
+    env_file:
+    - composer.env
     volumes:
       - ./:/usr/src/app/
     ports:
