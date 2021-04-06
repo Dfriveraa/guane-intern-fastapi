@@ -9,8 +9,6 @@ class DogBase(BaseModel):
     picture: str
     is_adopted: bool
     created_date: datetime
-    publisher: UserBase
-    adopter: Optional[UserBase]
 
     class Config:
         orm_mode = True

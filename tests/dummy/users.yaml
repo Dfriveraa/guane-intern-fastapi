@@ -1,0 +1,11 @@
+name: daniel
+email: daniel@gmail.com
+password_hashed: $2b$12$rFHr69l4zs352FZQDLTJueFRYOSSEEdtdVHdZ9OrfbvYSSk6Yxg9m
+---
+name: camilo
+email: camilo@gmail.com
+password_hashed: $2b$12$rFHr69l4zs352FZQDLTJueFRYOSSEEdtdVHdZ9OrfbvYSSk6Yxg9m
+---
+name: paola
+email: paola@gmail.com
+password_hashed: $2b$12$rFHr69l4zs352FZQDLTJueFRYOSSEEdtdVHdZ9OrfbvYSSk6Yxg9m
