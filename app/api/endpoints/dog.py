@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
 from app.db.models import User
 from app.schemas.dog import DogBase, ListDogs, DogUpdateIn
-from app.crud.dog import create_dog, find_dog_by_name, find_dogs_not_adopted, get_dogs, update_dog, delete_dog
+from app.crud.dog import create_dog, find_dog_by_name, find_adopted_dogs, get_dogs, update_dog, delete_dog
 from app.core.security.auth import get_current_active_user
 from app.db.db import get_db
 
@@ -18,7 +18,7 @@ async def get_all_dogs(offset: int = 0, limit: int = 10, db: Session = Depends(g
 
 @router.get("/adopted", response_model=ListDogs)
 async def get_adopted_dogs(offset: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    dogs = await find_dogs_not_adopted(offset=offset, limit=limit, db=db)
+    dogs = await find_adopted_dogs(offset=offset, limit=limit, db=db)
     list_dogs = ListDogs(offset=offset, limit=limit, total=len(dogs), dogs=dogs)
     return list_dogs
 

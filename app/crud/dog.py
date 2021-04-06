@@ -19,7 +19,7 @@ async def find_dog_by_name(name: str, db: Session):
     return dog
 
 
-async def find_dogs_not_adopted(offset: int, limit: int, db: Session):
+async def find_adopted_dogs(offset: int, limit: int, db: Session):
     dogs = db.query(Dog).filter(Dog.is_adopted == True).slice(offset, limit).all()
     return dogs
 
