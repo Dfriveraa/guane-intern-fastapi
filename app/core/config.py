@@ -11,6 +11,8 @@ class Settings(BaseSettings):
     port_db: str
     jwt_token: str
     api_image: str
+    database_testing: str
+
     class Config:
         env_file = ".env"
 

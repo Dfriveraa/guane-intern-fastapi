@@ -25,6 +25,7 @@ async def update_user_info(user: User = Depends(get_current_active_user),
     user = await update_user_active(db=db, user=user, new_state=False)
     return user
 
+
 @router.get("/info", response_model=UserBase)
 async def get_personal_info(current_user: User = Depends(get_current_active_user)):
     return current_user
@@ -35,6 +36,8 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
     user = await find_user_by_email(db=db, email=form_data.username.lower())
     if not user or not verify_password(plain_password=form_data.password, hashed_password=user.password_hashed):
         raise HTTPException(status_code=400, detail="Incorrect email or password")
+    elif not user.active:
+        raise HTTPException(status_code=400, detail="Inactive user")
     else:
         token = UserToken(id=user.id, email=user.email)
         access_token = create_access_token(token)
