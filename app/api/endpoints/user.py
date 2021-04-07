@@ -13,16 +13,16 @@ router = APIRouter()
 
 
 @router.put("/", response_model=UserUpdateOut)
-async def update_user_info(user_updated: UserUpdateIn, user: User = Depends(get_current_active_user),
+def update_user_info(user_updated: UserUpdateIn, user: User = Depends(get_current_active_user),
                            db: Session = Depends(get_db)):
-    user = await update_user(db=db, user=user, user_update=user_updated)
+    user = update_user(db=db, user=user, user_update=user_updated)
     return user
 
 
 @router.put("/state")
-async def update_user_info(user: User = Depends(get_current_active_user),
+def update_user_info(user: User = Depends(get_current_active_user),
                            db: Session = Depends(get_db)):
-    user = await update_user_active(db=db, user=user, new_state=False)
+    user = update_user_active(db=db, user=user, new_state=False)
     return user
 
 
@@ -32,8 +32,8 @@ async def get_personal_info(current_user: User = Depends(get_current_active_user
 
 
 @router.post("/login", response_model=Token)
-async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    user = await find_user_by_email(db=db, email=form_data.username.lower())
+def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    user = find_user_by_email(db=db, email=form_data.username.lower())
     if not user or not verify_password(plain_password=form_data.password, hashed_password=user.password_hashed):
         raise HTTPException(status_code=400, detail="Incorrect email or password")
     elif not user.active:
@@ -45,9 +45,9 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
 
 
 @router.post("/", response_model=UserBase)
-async def register_user(user_in: UserRegister, db: Session = Depends(get_db)):
-    if await find_user_by_email(db, user_in.email.lower()):
+def register_user(user_in: UserRegister, db: Session = Depends(get_db)):
+    if find_user_by_email(db, user_in.email.lower()):
         raise HTTPException(status_code=409, detail="There is already a user with this email")
 
-    user = await create_user(db=db, user_register=user_in)
+    user = create_user(db=db, user_register=user_in)
     return user

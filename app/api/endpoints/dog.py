@@ -10,24 +10,24 @@ router = APIRouter()
 
 
 @router.get("/", response_model=ListDogs)
-async def get_all_dogs(offset: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    dogs = await get_dogs(offset=offset, limit=limit, db=db)
+def get_all_dogs(offset: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+    dogs = get_dogs(offset=offset, limit=limit, db=db)
     list_dogs = ListDogs(offset=offset, limit=limit, total=len(dogs), dogs=dogs)
     return list_dogs
 
 
 @router.get("/adopted", response_model=ListDogs)
-async def get_adopted_dogs(offset: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    dogs = await find_adopted_dogs(offset=offset, limit=limit, db=db)
+def get_adopted_dogs(offset: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+    dogs = find_adopted_dogs(offset=offset, limit=limit, db=db)
     list_dogs = ListDogs(offset=offset, limit=limit, total=len(dogs), dogs=dogs)
     return list_dogs
 
 
 @router.put("/{name}", response_model=DogBase)
-async def change_dog_info(name: str, dog_update: DogUpdateIn, user: User = Depends(get_current_active_user),
+def change_dog_info(name: str, dog_update: DogUpdateIn, user: User = Depends(get_current_active_user),
                           db: Session = Depends(get_db)):
-    dog = await find_dog_by_name(name=name, db=db)
-    dog_updated = await update_dog(dog_update=dog_update, dog=dog, user=user, db=db)
+    dog = find_dog_by_name(name=name, db=db)
+    dog_updated = update_dog(dog_update=dog_update, dog=dog, user=user, db=db)
     if not dog_updated:
         raise HTTPException(status_code=403, detail="This changes was not allowed")
     else:
@@ -37,7 +37,7 @@ async def change_dog_info(name: str, dog_update: DogUpdateIn, user: User = Depen
 @router.post("/{name}", response_model=DogBase)
 async def register_new_dog(name: str, publisher: User = Depends(get_current_active_user),
                            db: Session = Depends(get_db)):
-    if await find_dog_by_name(name=name, db=db):
+    if find_dog_by_name(name=name, db=db):
         raise HTTPException(status_code=409, detail="There is already a dog with this name")
 
     dog = await create_dog(name=name, publisher=publisher, db=db)
@@ -45,8 +45,8 @@ async def register_new_dog(name: str, publisher: User = Depends(get_current_acti
 
 
 @router.get("/{name}", response_model=DogBase)
-async def get_dog_info(name: str, db: Session = Depends(get_db)):
-    dog = await find_dog_by_name(name=name, db=db)
+def get_dog_info(name: str, db: Session = Depends(get_db)):
+    dog = find_dog_by_name(name=name, db=db)
     if not dog:
         raise HTTPException(status_code=404, detail="Dog with this name not found")
     else:
@@ -54,11 +54,11 @@ async def get_dog_info(name: str, db: Session = Depends(get_db)):
 
 
 @router.delete("/{name}")
-async def delete_dog_register(name: str, user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
-    dog = await find_dog_by_name(name=name, db=db)
+def delete_dog_register(name: str, user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
+    dog = find_dog_by_name(name=name, db=db)
     if not dog:
         raise HTTPException(status_code=404, detail="Dog with this name not found")
-    status = await delete_dog(dog=dog, user=user, db=db)
+    status = delete_dog(dog=dog, user=user, db=db)
     if status:
         return Response(status_code=204)
     else:
