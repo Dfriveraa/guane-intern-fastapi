@@ -24,7 +24,8 @@ Las funcionalidades implementadas son:
 - Docker
 - Docker-compose
 ### Environments:
-La aplicación contiene dos archivos con ejemplo de las variables de entorno ".env.example" y "composer.example.env" que deben ser cambiados a conveniencia y cambiar el nombre ".env" para ejecutar la aplicación en un entorno local y "composer.env" para un entorno dockerizado. 
+La aplicación contiene dos archivos con ejemplo de las variables de entorno ".env.example" y "composer.example.env" que deben ser cambiados a conveniencia y cambiar el nombre ".env" para ejecutar la aplicación en un entorno local y "composer.env" para un entorno dockerizado.
+**NOTA:** No olvide borrar los comentarios en los environments para evitar problemas.
 ```shell
 APP_NAME="Guane intern fastapi"
 HOST=rapidog-db #is a service db !!DONT CHANGE!!
@@ -58,3 +59,9 @@ pytest
 ```shell
 docker-compose exec web-app pytest tests --cov "."
 ```
+![Screenshot from 2021-04-09 17-53-43](https://user-images.githubusercontent.com/33033057/114248179-96254d00-995c-11eb-9328-c72e3e16e282.png)
+
+
+### Despliegue
+La aplicación se encuentra desplegada en una máquina virtual EC2 y puede ser consultada en el siguiente enlace:
+http://3.236.125.125:3000/docs
