@@ -23,10 +23,10 @@ async def remove_dog_adopter(name: str, user: User = Depends(get_current_active_
     return dog_updated
 
 
-@router.put("/{name}", response_model=DogBase)
+@router.put("/adopt/{name}",response_model=DogBase)
 async def adopt_dog(name: str, dog_update: DogUpdateIn, user: User = Depends(get_current_active_user)):
     dog = await handler(name, user)
-    adopter = await handler_adoption(DogUpdateIn.adopter_id)
+    adopter = await handler_adoption(dog_update.adopter_id)
     dog_updated = await add_adopter(adopter=adopter, dog=dog)
     if not dog_updated:
         raise HTTPException(status_code=403, detail="This changes was not allowed")

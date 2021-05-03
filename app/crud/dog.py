@@ -32,7 +32,7 @@ async def remove_adopter(dog: Dog):
     dog.is_adopted = False
     dog.adopter = None
     await dog.save()
-    return Dog
+    return dog
 
 
 async def add_adopter(adopter: User, dog: Dog):

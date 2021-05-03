@@ -16,7 +16,7 @@ async def update_user_info(user_updated: UserUpdateIn, user: User = Depends(get_
     return user
 
 
-@router.put("/state")
+@router.put("/state", response_model=UserUpdateOut)
 async def update_user_info(user: User = Depends(get_current_active_user)):
     user = await update_user_active(user=user, new_state=False)
     return user
