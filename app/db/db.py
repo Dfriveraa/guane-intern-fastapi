@@ -1,22 +1,26 @@
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from fastapi import FastAPI
+from tortoise import Tortoise
+from tortoise.contrib.fastapi import register_tortoise
 from app.core.config import get_settings
 
 settings = get_settings()
 
-SQLALCHEMY_DATABASE_URL = f"postgresql://{settings.user_db}:{settings.password_db}@{settings.host}:{settings.port_db}/{settings.database}"
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL
-)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-Base = declarative_base()
+def init_db(app: FastAPI):
+    register_tortoise(
+        app,
+        db_url=settings.database_url,
+        modules={"models": ['app.db.models']},
+        generate_schemas=False,
+        add_exception_handlers=True
+    )
 
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+async def generate_schema():
+    await Tortoise.init(
+        db_url=settings.database_url,
+        modules={"models": ['app.db.models']}
+    )
+
+    await Tortoise.generate_schemas()
+    await Tortoise.close_connections()

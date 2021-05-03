@@ -9,7 +9,6 @@ services:
     ports:
       - "5434:5432"
     env_file:
-#      - ./DB/.env
     - composer.env
     volumes:
       - db_rapidog:/var/lib/postgresql/data

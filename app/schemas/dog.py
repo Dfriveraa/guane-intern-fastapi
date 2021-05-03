@@ -8,7 +8,7 @@ class DogBase(BaseModel):
     name: str
     picture: str
     is_adopted: bool
-    created_date: datetime
+    created_at: datetime
     publisher: UserBase
     adopter: Optional[UserBase]
 
@@ -24,7 +24,6 @@ class ListDogs(BaseModel):
 
 
 class DogUpdateIn(BaseModel):
-    is_adopted: bool
     adopter_id: int
 
     class Config:

@@ -34,5 +34,5 @@ class UserUpdatePassword(BaseModel):
 
 
 class UserUpdateOut(UserUpdateIn):
-    created_date: Optional[datetime]
+    created_at: Optional[datetime]
     updated_at: Optional[datetime]

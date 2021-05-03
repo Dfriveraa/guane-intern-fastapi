@@ -21,6 +21,8 @@ requests = "*"
 pytest-cov = "*"
 sqlalchemy-utils = "*"
 pyyaml = "*"
+tortoise-orm = "*"
+asyncpg = "*"
 
 [dev-packages]
 

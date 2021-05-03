@@ -1,52 +1,51 @@
-from sqlalchemy.sql import null
-from sqlalchemy.orm import Session
 from app.db.models import Dog, User
+from app.crud.user import find_user_by_id
 from app.services.api_images import get_random_image
 from app.schemas.dog import DogUpdateIn
+from typing import Union, List
 
 
-async def create_dog(name: str, publisher: User, db: Session):
+async def create_dog(name: str, publisher: User):
     image = await get_random_image()
-    new_dog = Dog(name=name, picture=image, publisher_id=publisher.id)
-    db.add(new_dog)
-    db.commit()
-    db.refresh(new_dog)
+    new_dog = Dog(name=name, picture=image, publisher=publisher, adopter=None)
+    await new_dog.save()
     return new_dog
 
 
-def find_dog_by_name(name: str, db: Session):
-    dog = db.query(Dog).filter(Dog.name == name).first()
+async def find_dog_by_name(name: str) -> Union[Dog, None]:
+    dog = await Dog.filter(name=name).prefetch_related("publisher", "adopter").first()
+    if dog:
+        return dog
+    return None
+
+
+async def get_dogs(offset: int, limit: int, adopted: bool = None) -> List[Dog]:
+    if adopted is None:
+        dogs = await Dog.all().prefetch_related("publisher", "adopter").offset(offset).limit(limit)
+    else:
+        dogs = await Dog.filter(is_adopted=adopted).all().prefetch_related("publisher", "adopter").offset(offset).limit(
+            limit)
+    return dogs
+
+
+async def remove_adopter(dog: Dog):
+    dog.is_adopted = False
+    dog.adopter = None
+    await dog.save()
+    return Dog
+
+
+async def add_adopter(adopter: User, dog: Dog):
+    if not dog.is_adopted:
+        dog.is_adopted = True
+        dog.adopter_id = adopter.id
+        await dog.save()
     return dog
 
 
-def find_adopted_dogs(offset: int, limit: int, db: Session):
-    dogs = db.query(Dog).filter(Dog.is_adopted == True).slice(offset, limit).all()
-    return dogs
-
-
-def get_dogs(offset: int, limit: int, db: Session):
-    dogs = db.query(Dog).slice(offset, limit).all()
-    return dogs
-
-
-def update_dog(dog_update: DogUpdateIn, dog: Dog, user: User, db: Session):
-    if dog.publisher_id == user.id and not dog.adopter_id and dog_update.is_adopted:
-        dog.is_adopted = True
-        dog.adopter_id = dog_update.adopter_id
-        db.commit()
-        return dog
-    elif dog.publisher_id == user.id or dog.adopter_id == user.id and not dog_update.is_adopted:
-        dog.is_adopted = False
-        dog.adopter_id = null()
-        return dog
-    else:
-        return None
-
-
-def delete_dog(dog: Dog, user: User, db: Session):
-    if user.id == dog.publisher_id or user.id == dog.adopter_id:
-        db.delete(dog)
-        db.commit()
+async def delete_dog(dog: Dog, user: User):
+    if user.id == dog.publisher.id or user.id == dog.adopter.id:
+        await dog.delete()
         return True
     else:
         return False
