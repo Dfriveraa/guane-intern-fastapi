@@ -7,20 +7,20 @@ name = "pypi"
 fastapi = "*"
 uvicorn = "*"
 email-validator = "*"
-sqlalchemy = "*"
 python-dotenv = "*"
 psycopg2-binary = "*"
-passlib = {extras = ["bcrypt"], version = "*"}
+passlib = { extras = ["bcrypt"], version = "*" }
 multipart = "*"
 python-multipart = "*"
 install = "*"
-python-jose = {extras = ["cryptography"], version = "*"}
+python-jose = { extras = ["cryptography"], version = "*" }
 httpx = "*"
 pytest = "*"
 requests = "*"
 pytest-cov = "*"
-sqlalchemy-utils = "*"
 pyyaml = "*"
+tortoise-orm = "*"
+asyncpg = "*"
 
 [dev-packages]
 

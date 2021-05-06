@@ -1,7 +1,8 @@
+from datetime import datetime
+from typing import Optional
+
 from pydantic import BaseModel
 from pydantic.networks import EmailStr
-from datetime import datetime
-from typing import Optional, List
 
 
 class UserBase(BaseModel):
@@ -34,5 +35,5 @@ class UserUpdatePassword(BaseModel):
 
 
 class UserUpdateOut(UserUpdateIn):
-    created_date: Optional[datetime]
     updated_at: Optional[datetime]
+

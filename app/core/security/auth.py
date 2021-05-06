@@ -1,13 +1,13 @@
 from datetime import datetime, timedelta
-from app.db.db import get_db
+
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from app.schemas.user import UserToken
-from app.core.config import get_settings
-from app.crud.user import find_user_by_email
 from jose import jwt, JWTError
-from sqlalchemy.orm import Session
-from app.db.models import User
+
+from app.core.config import get_settings
+from app.services.user import user_service
+from app.infra.postgres.models import User
+from app.schemas.user import UserToken
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/user/login")
 settings = get_settings()
@@ -21,7 +21,7 @@ def create_access_token(user: UserToken):
     return encoded_jwt
 
 
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+async def get_current_user(token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -34,7 +34,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
             raise credentials_exception
     except JWTError:
         raise credentials_exception
-    user = find_user_by_email(db, email)
+    user = await user_service.find_user_by_email(email=email)
     if user is None:
         raise credentials_exception
     return user
