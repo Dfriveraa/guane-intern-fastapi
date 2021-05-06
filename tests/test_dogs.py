@@ -1,5 +1,6 @@
-from tests.test_users import login_app, login
 import json
+
+from tests.test_users import login_app, login
 
 dog_prefix = "/api/dogs/"
 dog_info = {

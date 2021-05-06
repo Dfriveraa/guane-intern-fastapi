@@ -1,17 +1,19 @@
-from fastapi import APIRouter, Depends, HTTPException, Response
-from app.db.models import User
-from app.schemas.dog import DogBase, ListDogs, DogUpdateIn
-from app.crud.dog import create_dog, find_dog_by_name, get_dogs, delete_dog, add_adopter, remove_adopter
-from app.crud.user import find_user_by_id
-from app.core.security.auth import get_current_active_user
 from typing import Optional
+
+from fastapi import APIRouter, Depends, HTTPException, Response
+
+from app.core.security.auth import get_current_active_user
+from app.infra.postgres.models import User
+from app.schemas.dog import ListDogs, DogBase, DogInfo
+from app.services.dog import dog_service
+from app.services.user import user_service
 
 router = APIRouter()
 
 
 @router.get("/", response_model=ListDogs)
 async def get_all_dogs(adopted: Optional[bool] = None, offset: int = 0, limit: int = 10):
-    dogs = await get_dogs(offset=offset, adopted=adopted, limit=limit)
+    dogs = await dog_service.get_all_dogs(offset=offset, adopted=adopted, limit=limit)
     list_dogs = ListDogs(offset=offset, limit=limit, total=len(dogs), dogs=dogs)
     return list_dogs
 
@@ -19,15 +21,15 @@ async def get_all_dogs(adopted: Optional[bool] = None, offset: int = 0, limit: i
 @router.put("/{name}", response_model=DogBase)
 async def remove_dog_adopter(name: str, user: User = Depends(get_current_active_user)):
     dog = await handler(name, user)
-    dog_updated = await remove_adopter(dog)
+    dog_updated = await dog_service.change_adopter(_id=dog.id, adopter_id=None)
     return dog_updated
 
 
-@router.put("/adopt/{name}",response_model=DogBase)
-async def adopt_dog(name: str, dog_update: DogUpdateIn, user: User = Depends(get_current_active_user)):
+@router.put("/adopt/{name}", response_model=DogBase)
+async def adopt_dog(name: str, adopter_id: int, user: User = Depends(get_current_active_user)):
     dog = await handler(name, user)
-    adopter = await handler_adoption(dog_update.adopter_id)
-    dog_updated = await add_adopter(adopter=adopter, dog=dog)
+    adopter = await handler_adoption(adopter_id)
+    dog_updated = await dog_service.change_adopter(_id=dog.id, adopter_id=adopter.id)
     if not dog_updated:
         raise HTTPException(status_code=403, detail="This changes was not allowed")
     else:
@@ -36,15 +38,15 @@ async def adopt_dog(name: str, dog_update: DogUpdateIn, user: User = Depends(get
 
 @router.post("/{name}", response_model=DogBase)
 async def register_new_dog(name: str, publisher: User = Depends(get_current_active_user)):
-    if await find_dog_by_name(name=name):
+    if await dog_service.find_dog_by_name(name=name):
         raise HTTPException(status_code=409, detail="There is already a dog with this name")
-    dog = await create_dog(name=name, publisher=publisher)
+    dog = await dog_service.create_dog(name=name, publisher_id=publisher.id)
     return dog
 
 
-@router.get("/{name}", response_model=DogBase)
+@router.get("/{name}", response_model=DogInfo)
 async def get_dog_info(name: str):
-    dog = await find_dog_by_name(name=name)
+    dog = await dog_service.find_dog_by_name(name=name)
     if not dog:
         raise HTTPException(status_code=404, detail="Dog with this name not found")
     else:
@@ -53,27 +55,30 @@ async def get_dog_info(name: str):
 
 @router.delete("/{name}")
 async def delete_dog_register(name: str, user: User = Depends(get_current_active_user)):
-    dog = await find_dog_by_name(name=name)
+    dog = await dog_service.find_dog_by_name(name=name)
     if not dog:
         raise HTTPException(status_code=404, detail="Dog with this name not found")
-    status = await delete_dog(dog=dog, user=user)
-    if status:
-        return Response(status_code=204)
+    if user.id == (dog.publisher_id or dog.adopter_id):
+        status = await dog_service.delete_dog(_id=dog.id)
+        if status:
+            return Response(status_code=204)
+        else:
+            return Response(status_code=500)
     else:
-        return Response(status_code=500)
+        raise HTTPException(status_code=401, detail="Unauthorized user to this")
 
 
 async def handler(name: str, user: User):
-    dog = await find_dog_by_name(name=name)
+    dog = await dog_service.find_dog_by_name(name=name)
     if not dog:
         raise HTTPException(status_code=404, detail="Dog not found")
-    if not (user.id == (dog.publisher.id or dog.adopter.id)):
+    if not (user.id == (dog.publisher_id or dog.adopter_id)):
         raise HTTPException(status_code=401, detail="Unauthorized user to this")
     return dog
 
 
 async def handler_adoption(user_id: int):
-    user = await find_user_by_id(user_id)
+    user = await user_service.find_user_by_id(_id=user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User with this id not found")
     return user

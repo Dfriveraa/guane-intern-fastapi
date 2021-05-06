@@ -1,14 +1,14 @@
-from fastapi.testclient import TestClient
 import pytest
-from app.main import app
-from app.core import config
-from app.db.models import User, Dog
+import yaml
+from app.db import Base
+from app.db import User, Dog
+from app.db import get_db
+from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-import yaml
-from app.db.db import get_db
-from app.db.models import Base
 
+from app.core import config
+from app.main import app
 
 settings = config.get_settings()
 

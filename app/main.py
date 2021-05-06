@@ -1,7 +1,8 @@
 from fastapi import FastAPI
-from app.core.config import Settings
+
 from app.api.api import api_router
-from app.db.db import init_db, generate_schema
+from app.core.config import Settings
+from app.infra.postgres.config import init_db, generate_schema
 
 settings = Settings()
 
