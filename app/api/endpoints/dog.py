@@ -2,18 +2,19 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Response
 
+from app.core.celery import celery_app
 from app.core.security.auth import get_current_active_user
 from app.infra.postgres.models import User
 from app.schemas.dog import ListDogs, DogBase, DogInfo
 from app.services.dog import dog_service
 from app.services.user import user_service
-
+import asyncio
 router = APIRouter()
 
 
 @router.get("/", response_model=ListDogs)
-async def get_all_dogs(adopted: Optional[bool] = None, offset: int = 0, limit: int = 10):
-    dogs = await dog_service.get_all_dogs(offset=offset, adopted=adopted, limit=limit)
+def get_all_dogs(adopted: Optional[bool] = None, offset: int = 0, limit: int = 10):
+    dogs = asyncio.run(dog_service.get_all_dogs(offset=offset, adopted=adopted, limit=limit))
     list_dogs = ListDogs(offset=offset, limit=limit, total=len(dogs), dogs=dogs)
     return list_dogs
 
@@ -36,12 +37,14 @@ async def adopt_dog(name: str, adopter_id: int, user: User = Depends(get_current
         return dog_updated
 
 
-@router.post("/{name}", response_model=DogBase)
+@router.post("/{name}")
 async def register_new_dog(name: str, publisher: User = Depends(get_current_active_user)):
     if await dog_service.find_dog_by_name(name=name):
         raise HTTPException(status_code=409, detail="There is already a dog with this name")
-    dog = await dog_service.create_dog(name=name, publisher_id=publisher.id)
-    return dog
+    celery_app.send_task("app.workers.dogs.create_dog_worker", args=[name,publisher.id])
+
+    # dog = await dog_service.create_dog(name=name, publisher_id=publisher.id)
+    return {"Message": "Creating dog"}
 
 
 @router.get("/{name}", response_model=DogInfo)
