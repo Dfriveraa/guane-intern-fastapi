@@ -21,6 +21,8 @@ pytest-cov = "*"
 pyyaml = "*"
 tortoise-orm = "*"
 asyncpg = "*"
+celery = "*"
+redis = "*"
 
 [dev-packages]
 

@@ -22,6 +22,5 @@ async def generate_schema():
         db_url=settings.database_url,
         modules={"models": ['app.infra.postgres.models']}
     )
-
     await Tortoise.generate_schemas()
     await Tortoise.close_connections()
